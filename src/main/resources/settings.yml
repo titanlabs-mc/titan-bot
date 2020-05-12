@@ -1,0 +1,8 @@
+token: 'x'
+ticket-role-id: '709034042183516161'
+pending-ticket-category: '708983913694887946'
+answered-ticket-category: '708983989343617065'
+pastebin-key: 'Get your own fella'
+
+ticket-permissions:
+  - VIEW_CHANNEL

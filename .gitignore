@@ -1,0 +1,9 @@
+/build
+*.idea
+.idea
+
+*.bin
+*.lock
+.gradle
+
+*.iml
