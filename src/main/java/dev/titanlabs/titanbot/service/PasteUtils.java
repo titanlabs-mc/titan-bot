@@ -17,7 +17,7 @@ public class PasteUtils {
     }
 
     public String getRawPaste(String id) {
-        if (id.contains("paste_key")) {
+        if (id.contains("paste_key") || id.contains("/")) {
             return "";
         }
         try {

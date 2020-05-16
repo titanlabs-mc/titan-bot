@@ -1,10 +1,10 @@
-package dev.titanlabs.titanbot.recognition.listener;
+package dev.titanlabs.titanbot.listeners;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import dev.titanlabs.titanbot.TitanBot;
 import dev.titanlabs.titanbot.recognition.RecognitionType;
-import dev.titanlabs.titanbot.recognition.manager.RecognitionManager;
+import dev.titanlabs.titanbot.managers.RecognitionManager;
 import dev.titanlabs.titanbot.service.PasteUtils;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -13,12 +13,12 @@ import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
 import java.util.concurrent.TimeUnit;
 
-public class MessageListener extends ListenerAdapter {
+public class RecognitionMessageListener extends ListenerAdapter {
     private final RecognitionManager recognitionManager;
     private final PasteUtils pasteUtils;
     private Cache<String, String> pasteCache = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.DAYS).build();
 
-    public MessageListener(TitanBot bot) {
+    public RecognitionMessageListener(TitanBot bot) {
         this.recognitionManager = bot.getRecognitionManager();
         this.pasteUtils = bot.getPasteUtils();
     }

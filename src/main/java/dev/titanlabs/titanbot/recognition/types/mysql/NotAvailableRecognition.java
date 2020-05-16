@@ -5,12 +5,11 @@ import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class NotAvailableRecognition implements RecognitionType {
-    private boolean enabled;
+public class NotAvailableRecognition extends RecognitionType {
     private final AtomicInteger uses;
 
     public NotAvailableRecognition(boolean enabled) {
-        this.enabled = enabled;
+        super("Wrong Address/Unavailable (MySQL)", "mysqlnotavailable", enabled);
         this.uses = new AtomicInteger();
     }
 
@@ -29,30 +28,5 @@ public class NotAvailableRecognition implements RecognitionType {
                 .concat("2) The MySQL database is accessible from the server.")
         ).queue();
         this.uses.getAndIncrement();
-    }
-
-    @Override
-    public String getName() {
-        return "MySQL - Wrong Address/Unavailable";
-    }
-
-    @Override
-    public void disable() {
-        this.enabled = false;
-    }
-
-    @Override
-    public void enable() {
-        this.enabled = true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return this.enabled;
-    }
-
-    @Override
-    public int getUses() {
-        return this.uses.intValue();
     }
 }

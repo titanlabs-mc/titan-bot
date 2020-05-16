@@ -24,11 +24,13 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.ZakShearman:simple-discord:1.0.4.4.3'
+    implementation 'com.github.ZakShearman:simple-discord:1.0.4.4.4'
     compileOnly 'org.projectlombok:lombok:1.18.12'
     annotationProcessor 'org.projectlombok:lombok:1.18.12'
 }
 
 shadowJar {
-
+    manifest {
+        attributes  'Class-Path': 'dev.titanlabs.titanbot', 'Main-Class': 'dev.titanlabs.titanbot.Main'
+    }
 }

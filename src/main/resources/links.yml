@@ -1,0 +1,15 @@
+tlds:
+  - 'dev'
+  - 'com'
+  - 'org'
+  - 'dev'
+  - 'pink'
+  - 'xyz'
+  - 'host'
+  - 'black'
+
+whitelisted-domains:
+  - 'titanlabs.dev'
+  - 'github.com'
+  - 'spigotmc.org'
+  - 'zakshearman.com'
