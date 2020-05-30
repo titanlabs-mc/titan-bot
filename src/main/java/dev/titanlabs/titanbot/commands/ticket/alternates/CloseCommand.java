@@ -1,19 +1,17 @@
-package dev.titanlabs.titanbot.commands.ticket.subs;
+package dev.titanlabs.titanbot.commands.ticket.alternates;
 
 import dev.titanlabs.titanbot.TitanBot;
 import dev.titanlabs.titanbot.service.TicketUtils;
 import net.dv8tion.jda.api.entities.Member;
 import pink.zak.simplediscord.command.CommandContainer;
-import pink.zak.simplediscord.command.command.SubCommand;
+import pink.zak.simplediscord.command.command.SimpleCommand;
 
-public class TicketCloseSub extends SubCommand {
+public class CloseCommand extends SimpleCommand {
     private final TicketUtils ticketUtils;
 
-    public TicketCloseSub(TitanBot bot) {
-        super(bot, false);
+    public CloseCommand(TitanBot bot) {
+        super(bot, "close", false);
         this.ticketUtils = bot.getTicketUtils();
-
-        this.addFlat("close");
     }
 
     @Override

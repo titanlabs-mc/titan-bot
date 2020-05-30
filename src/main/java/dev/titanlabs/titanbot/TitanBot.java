@@ -4,12 +4,21 @@ import com.google.common.collect.Sets;
 import dev.titanlabs.titanbot.cache.AdvertisingCache;
 import dev.titanlabs.titanbot.cache.UserCache;
 import dev.titanlabs.titanbot.commands.HelpCommand;
+import dev.titanlabs.titanbot.commands.adminstats.AdminStatsCommand;
+import dev.titanlabs.titanbot.commands.balance.BalanceCommand;
+import dev.titanlabs.titanbot.commands.baltop.BalTopCommand;
+import dev.titanlabs.titanbot.commands.buy.BuyCommand;
 import dev.titanlabs.titanbot.commands.recognition.RecognitionCommand;
+import dev.titanlabs.titanbot.commands.shop.ShopCommand;
 import dev.titanlabs.titanbot.commands.ticket.TicketCommand;
+import dev.titanlabs.titanbot.commands.ticket.alternates.CloseCommand;
 import dev.titanlabs.titanbot.listeners.MemberLeaveListener;
-import dev.titanlabs.titanbot.listeners.RecognitionMessageListener;
-import dev.titanlabs.titanbot.listeners.TicketReplyListener;
+import dev.titanlabs.titanbot.listeners.message.RecognitionMessageListener;
+import dev.titanlabs.titanbot.listeners.message.ResearchMessageListener;
+import dev.titanlabs.titanbot.listeners.message.TicketReplyListener;
+import dev.titanlabs.titanbot.listeners.message.UserStatsMessageListener;
 import dev.titanlabs.titanbot.managers.RecognitionManager;
+import dev.titanlabs.titanbot.managers.ShopItemManager;
 import dev.titanlabs.titanbot.registry.ArgumentRegistry;
 import dev.titanlabs.titanbot.service.PasteUtils;
 import dev.titanlabs.titanbot.service.TicketUtils;
@@ -33,9 +42,10 @@ public class TitanBot extends JdaBot {
     private TicketUtils ticketUtils;
     private PasteUtils pasteUtils;
     private RecognitionManager recognitionManager;
+    private ShopItemManager shopItemManager;
 
     public TitanBot() {
-        super(path -> path.resolve("bot-data"));
+        super(path -> path);
     }
 
     @SneakyThrows
@@ -56,29 +66,41 @@ public class TitanBot extends JdaBot {
         this.pasteUtils = new PasteUtils(this);
 
         this.recognitionManager = new RecognitionManager();
+        this.shopItemManager = new ShopItemManager(this);
+
         this.registerRegistries(
                 new ArgumentRegistry(this),
-                this.recognitionManager
+                this.recognitionManager,
+                this.shopItemManager
         );
+
         this.registerCommands(
+                new AdminStatsCommand(this),
+                new BalanceCommand(this),
+                new BalTopCommand(this),
+                new BuyCommand(this),
                 new RecognitionCommand(this),
+                new ShopCommand(this),
+                new CloseCommand(this),
                 new TicketCommand(this),
                 new HelpCommand(this)
         );
-        this.registerListeners(
 
+        this.registerListeners(
+                new RecognitionMessageListener(this),
+                new ResearchMessageListener(this),
                 new MemberLeaveListener(this),
                 new TicketReplyListener(this),
-                new RecognitionMessageListener(this)
+                new UserStatsMessageListener(this)
         );
         System.out.println("Loaded Successfully");
     }
 
     public Set<GatewayIntent> getIntents() {
-        Set<GatewayIntent> intents = Sets.newHashSet();
-        intents.add(GatewayIntent.GUILD_MEMBERS);
-        intents.add(GatewayIntent.GUILD_MESSAGES);
-        return intents;
+        return Sets.newHashSet(
+                GatewayIntent.GUILD_MEMBERS,
+                GatewayIntent.GUILD_MESSAGES
+        );
     }
 
     @Override
@@ -118,5 +140,9 @@ public class TitanBot extends JdaBot {
 
     public RecognitionManager getRecognitionManager() {
         return this.recognitionManager;
+    }
+
+    public ShopItemManager getShopItemManager() {
+        return this.shopItemManager;
     }
 }

@@ -17,6 +17,8 @@ public class UserStorage extends Storage<TitanUser> {
         return ((user, json, gson) -> {
             json.addProperty("id", user.getId());
             json.addProperty("ticketsOpened", user.getTicketsOpened().intValue());
+            json.addProperty("messageAmount", user.getMessageAmount().intValue());
+            json.addProperty("research", user.getResearch());
             json.addProperty("ticketChannelId", user.getTicketChannelIdLegacy());
             return json;
         });
@@ -27,8 +29,10 @@ public class UserStorage extends Storage<TitanUser> {
         return ((json, gson) -> {
             String id = json.get("id").getAsString();
             int ticketsOpened = json.get("ticketsOpened").getAsInt();
+            int messageAmount = json.get("messageAmount").getAsInt();
+            int research = json.get("research").getAsInt();
             String ticketChannelId = json.get("ticketChannelId").getAsString();
-            return new TitanUser(id, ticketsOpened, ticketChannelId);
+            return new TitanUser(id, ticketsOpened, messageAmount, research, ticketChannelId);
         });
     }
 }

@@ -1,10 +1,10 @@
-package dev.titanlabs.titanbot.listeners;
+package dev.titanlabs.titanbot.listeners.message;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import dev.titanlabs.titanbot.TitanBot;
-import dev.titanlabs.titanbot.recognition.RecognitionType;
 import dev.titanlabs.titanbot.managers.RecognitionManager;
+import dev.titanlabs.titanbot.recognition.RecognitionType;
 import dev.titanlabs.titanbot.service.PasteUtils;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 public class RecognitionMessageListener extends ListenerAdapter {
     private final RecognitionManager recognitionManager;
     private final PasteUtils pasteUtils;
-    private Cache<String, String> pasteCache = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.DAYS).build();
+    private final Cache<String, String> pasteCache = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.DAYS).build();
 
     public RecognitionMessageListener(TitanBot bot) {
         this.recognitionManager = bot.getRecognitionManager();
@@ -27,14 +27,14 @@ public class RecognitionMessageListener extends ListenerAdapter {
     @Override
     @SubscribeEvent
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (event.getAuthor().isBot() || !event.getChannel().getName().contains("support")) {
+        if (event.getAuthor().isBot()) {
             return;
         }
         String messageToParse = event.getMessage().getContentStripped().toLowerCase();
         if (messageToParse.contains("pastebin.com/")) {
             String pasteId = messageToParse.split("pastebin.com")[1].replace("/", "").replace("\\", "");
             if (this.pasteCache.asMap().containsKey(pasteId)) {
-                messageToParse = this.pasteCache.get(pasteId);
+                messageToParse = this.pasteCache.getIfPresent(pasteId);
             } else {
                 messageToParse = this.pasteUtils.getRawPaste(pasteId).toLowerCase();
                 this.pasteCache.put(pasteId, messageToParse);

@@ -1,4 +1,4 @@
-package dev.titanlabs.titanbot.listeners;
+package dev.titanlabs.titanbot.listeners.message;
 
 import dev.titanlabs.titanbot.TitanBot;
 import dev.titanlabs.titanbot.cache.AdvertisingCache;
@@ -28,7 +28,7 @@ public class AdvertisingMessageListener extends ListenerAdapter {
                 while (character != ' ') {
                     startIndex--;
                     character = message.charAt(startIndex);
-                    event.getChannel().sendMessage("CHAR: ".concat(String.valueOf(character)));
+                    event.getChannel().sendMessage("CHAR: ".concat(String.valueOf(character))).queue();
                 }
                 String domain = message.substring(startIndex, tldIndex);
                 event.getChannel().sendMessage("Final: ".concat(domain)).queue();

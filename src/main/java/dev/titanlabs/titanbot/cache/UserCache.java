@@ -9,15 +9,16 @@ import dev.titanlabs.titanbot.storage.UserStorage;
 import lombok.SneakyThrows;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.UnaryOperator;
 
 public class UserCache {
     private final UserStorage userStorage;
-    private Cache<String, TitanUser> userCache;
+    private final Cache<String, TitanUser> userCache;
 
     public UserCache(TitanBot bot) {
         this.userStorage = bot.getUserStorage();
         this.userCache = CacheBuilder
-                .newBuilder().expireAfterAccess(1, TimeUnit.HOURS)
+                .newBuilder().expireAfterAccess(15, TimeUnit.MINUTES)
                 .removalListener(new UserCacheRemovalListener(bot, true))
                 .build();
     }
@@ -28,6 +29,19 @@ public class UserCache {
             TitanUser titanUser = this.userStorage.load(id);
             return titanUser == null ? new TitanUser(id) : titanUser;
         });
+    }
+
+    public void modifyAllUsers(UnaryOperator<TitanUser> userOperator) {
+        for (TitanUser cachedUser : this.userCache.asMap().values()) {
+            userOperator.apply(cachedUser);
+            this.userStorage.save(cachedUser.getId(), cachedUser);
+        }
+        for (TitanUser savedUser : this.userStorage.loadAll()) {
+            if (this.userCache.getIfPresent(savedUser.getId()) == null) {
+                userOperator.apply(savedUser);
+                this.userStorage.save(savedUser.getId(), savedUser);
+            }
+        }
     }
 
     public void save(TitanUser user, boolean verbose) {

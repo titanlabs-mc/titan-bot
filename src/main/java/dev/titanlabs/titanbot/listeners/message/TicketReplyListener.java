@@ -1,4 +1,4 @@
-package dev.titanlabs.titanbot.listeners;
+package dev.titanlabs.titanbot.listeners.message;
 
 import dev.titanlabs.titanbot.TitanBot;
 import dev.titanlabs.titanbot.service.TicketUtils;
@@ -21,7 +21,10 @@ public class TicketReplyListener extends ListenerAdapter {
     @SubscribeEvent
     public void onMessageReceived(MessageReceivedEvent event) {
         GuildChannel channel = event.getTextChannel();
-        if (channel.getName().startsWith("ticket-") && !event.getAuthor().isBot() && !event.getMessage().getContentRaw().equals("-ticket close")) {
+        if (channel.getName().startsWith("ticket-") && !event.getAuthor().isBot()
+                && !event.getMessage().getContentRaw().startsWith("-ticket")
+                && !event.getMessage().getContentRaw().startsWith("-t")
+                && !event.getMessage().getContentRaw().startsWith("-close")) {
             for (Role role : event.getMember().getRoles()) {
                 if (role.getId().equals(this.ticketRole.getId())) {
                     channel.getManager().setParent(this.ticketUtils.getAnsweredCategory()).queue();

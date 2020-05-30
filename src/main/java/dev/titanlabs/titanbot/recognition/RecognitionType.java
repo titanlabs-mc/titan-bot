@@ -7,8 +7,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class RecognitionType {
     private final String name;
     private final String identifier;
-    private boolean enabled;
     public AtomicInteger uses;
+    private boolean enabled;
 
     public RecognitionType(String name, String identifier, boolean enabled) {
         this.name = name;

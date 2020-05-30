@@ -26,7 +26,6 @@ public class MemberLeaveListener extends ListenerAdapter {
         TitanUser titanUser = this.userCache.getUser(event.getUser().getId());
         if (titanUser.getTicketChannelId().isPresent()) {
             event.getGuild().getTextChannelById(titanUser.getTicketChannelId().get()).sendMessage(":warning: The ticket owner has left the Discord!").queue();
-            titanUser.setTicketChannelId(null);
         }
         this.userCache.save(titanUser, true);
     }

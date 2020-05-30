@@ -29,6 +29,8 @@ public class TicketCommand extends SimpleCommand {
         this.ticketUtils = bot.getTicketUtils();
         this.ticketPermissions = ticketUtils.getTicketPermissions();
 
+        this.setAliases("t");
+
         this.setSubCommands(
                 new TicketAddSub(bot),
                 new TicketCloseSub(bot)
@@ -41,6 +43,10 @@ public class TicketCommand extends SimpleCommand {
         User user = sender.getUser();
         if (titanUser.getTicketChannelId().isPresent()) {
             TextChannel ticketChannel = container.getGuild().getTextChannelById(titanUser.getTicketChannelId().get());
+            if (ticketChannel == null) {
+                titanUser.setTicketChannelId("N/A");
+                this.onExecute(sender, container, args);
+            }
             container.getChannel().sendMessage(new EmbedBuilder()
                     .setTitle(":x: Ticket Already Open")
                     .setColor(Color.RED)

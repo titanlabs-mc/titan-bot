@@ -20,7 +20,6 @@ public class GeneralInfoSub extends SubCommand {
         this.addFlat("info");
     }
 
-
     @Override
     public void onExecute(Member sender, CommandContainer container, String[] args) {
         StringBuilder recognitionStats = new StringBuilder();
