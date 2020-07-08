@@ -24,8 +24,8 @@ public class MemberLeaveListener extends ListenerAdapter {
             return;
         }
         TitanUser titanUser = this.userCache.getUser(event.getUser().getId());
-        if (titanUser.getTicketChannelId().isPresent()) {
-            event.getGuild().getTextChannelById(titanUser.getTicketChannelId().get()).sendMessage(":warning: The ticket owner has left the Discord!").queue();
+        if (titanUser.hasOpenTicket()) {
+            event.getGuild().getTextChannelById(titanUser.getTicketChannelId()).sendMessage(":warning: The ticket owner has left the Discord!").queue();
         }
         this.userCache.save(titanUser, true);
     }

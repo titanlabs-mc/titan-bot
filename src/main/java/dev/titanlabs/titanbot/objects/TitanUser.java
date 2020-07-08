@@ -1,6 +1,5 @@
 package dev.titanlabs.titanbot.objects;
 
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.UnaryOperator;
 
@@ -56,15 +55,15 @@ public class TitanUser {
         this.lastResearchGainTime = System.currentTimeMillis();
     }
 
-    public Optional<String> getTicketChannelId() {
-        return this.ticketChannelId.equals("N/A") ? Optional.empty() : Optional.of(this.ticketChannelId);
+    public boolean hasOpenTicket() {
+        return !this.ticketChannelId.equals("N/A");
+    }
+
+    public String getTicketChannelId() {
+        return this.ticketChannelId;
     }
 
     public void setTicketChannelId(String id) {
         this.ticketChannelId = id;
-    }
-
-    public String getTicketChannelIdLegacy() {
-        return this.ticketChannelId;
     }
 }

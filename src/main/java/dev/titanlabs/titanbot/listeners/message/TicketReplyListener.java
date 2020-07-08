@@ -21,10 +21,11 @@ public class TicketReplyListener extends ListenerAdapter {
     @SubscribeEvent
     public void onMessageReceived(MessageReceivedEvent event) {
         GuildChannel channel = event.getTextChannel();
+        String message = event.getMessage().getContentRaw();
         if (channel.getName().startsWith("ticket-") && !event.getAuthor().isBot()
-                && !event.getMessage().getContentRaw().startsWith("-ticket")
-                && !event.getMessage().getContentRaw().startsWith("-t")
-                && !event.getMessage().getContentRaw().startsWith("-close")) {
+                && !message.startsWith("-ticket")
+                && !message.startsWith("-t")
+                && !message.startsWith("-close")) {
             for (Role role : event.getMember().getRoles()) {
                 if (role.getId().equals(this.ticketRole.getId())) {
                     channel.getManager().setParent(this.ticketUtils.getAnsweredCategory()).queue();

@@ -30,9 +30,10 @@ public class PasteUtils {
         } catch (FileNotFoundException ex) {
             System.out.println("Pastebin: Non existent paste entered");
         } catch (MalformedURLException ex) {
-            System.out.println("Pastebin: Bad URL entered.");
+            System.out.println("Pastebin: Bad id entered: ".concat(id));
         } catch (IOException ex) {
             System.out.println("Pastebin: Unknown error.");
+            ex.printStackTrace();
         }
         return "";
     }

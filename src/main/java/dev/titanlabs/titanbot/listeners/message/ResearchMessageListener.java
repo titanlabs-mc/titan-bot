@@ -27,7 +27,7 @@ public class ResearchMessageListener extends ListenerAdapter {
             int researchToAdd = ThreadLocalRandom.current().nextInt(1, 5);
             System.out.println("Gave user ".concat(author.getName()).concat(" ").concat(String.valueOf(researchToAdd))
                     .concat(" research. (Totals: ").concat(String.valueOf(user.getResearch() + researchToAdd).concat(")")));
-            user.modifyResearch(research -> research = research + researchToAdd);
+            user.modifyResearch(research -> research += researchToAdd);
             user.updateLastResearchGainTime();
         }
     }

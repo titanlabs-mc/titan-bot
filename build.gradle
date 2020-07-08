@@ -24,7 +24,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.ZakShearman:simple-discord:1.0.5.4'
+    implementation 'com.github.ZakShearman:simple-discord:1.0.6.1'
     compileOnly 'org.projectlombok:lombok:1.18.12'
     annotationProcessor 'org.projectlombok:lombok:1.18.12'
 }

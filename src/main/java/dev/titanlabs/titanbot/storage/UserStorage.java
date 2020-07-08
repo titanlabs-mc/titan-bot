@@ -19,7 +19,7 @@ public class UserStorage extends Storage<TitanUser> {
             json.addProperty("ticketsOpened", user.getTicketsOpened().intValue());
             json.addProperty("messageAmount", user.getMessageAmount().intValue());
             json.addProperty("research", user.getResearch());
-            json.addProperty("ticketChannelId", user.getTicketChannelIdLegacy());
+            json.addProperty("ticketChannelId", user.getTicketChannelId());
             return json;
         });
     }

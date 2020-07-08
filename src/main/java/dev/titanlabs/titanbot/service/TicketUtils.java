@@ -5,11 +5,13 @@ import com.google.common.collect.Sets;
 import dev.titanlabs.titanbot.TitanBot;
 import dev.titanlabs.titanbot.cache.UserCache;
 import dev.titanlabs.titanbot.objects.TitanUser;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import pink.zak.simplediscord.command.CommandContainer;
 import pink.zak.simplediscord.config.Config;
 
+import java.awt.*;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -35,30 +37,64 @@ public class TicketUtils {
         }
     }
 
+    public void handleOpenRequest(Member sender, CommandContainer container) {
+        TitanUser titanUser = this.userCache.getUser(sender.getId());
+        User user = sender.getUser();
+        if (titanUser.hasOpenTicket()) {
+            TextChannel ticketChannel = container.getGuild().getTextChannelById(titanUser.getTicketChannelId());
+            if (ticketChannel == null) {
+                titanUser.setTicketChannelId("N/A");
+                this.handleOpenRequest(sender, container);
+            }
+            container.getChannel().sendMessage(new EmbedBuilder()
+                    .setTitle(":x: Ticket Already Open")
+                    .setColor(Color.RED)
+                    .setDescription("You already have a ticket open: ".concat(ticketChannel.getAsMention()).concat("\nPlease close the existing ticket or use the channel."))
+                    .build()).queue();
+        } else {
+            String targetChannelName = "ticket-".concat(user.getName()).concat("-").concat(user.getDiscriminator());
+            this.getPendingCategory().createTextChannel(targetChannelName).addMemberPermissionOverride(sender.getIdLong(), this.ticketPermissions, null).queue(channel -> {
+                container.getChannel().sendMessage(new EmbedBuilder()
+                        .setTitle(":white_check_mark: Ticket Created")
+                        .setColor(Color.GREEN)
+                        .setDescription("Your ticket has been created: ".concat(channel.getAsMention()))
+                        .build()).queue();
+                titanUser.setTicketChannelId(channel.getId());
+                channel.sendMessage("Thank you for creating a ticket ".concat(user.getAsMention()).concat(". We will be with you shortly.")).queue();
+            });
+            titanUser.getTicketsOpened().getAndIncrement();
+        }
+    }
+
     public void handleCloseRequest(Member sender, CommandContainer container) {
         TextChannel channel = (TextChannel) container.getChannel();
         TitanUser titanUser = this.userCache.getUser(sender.getId());
         if (channel.getName().contains("ticket-")) {
-            if (titanUser.getTicketChannelId().isPresent() && channel.getId().equals(titanUser.getTicketChannelId().get())) {
-                this.initiateOrConfirm(channel, channel, titanUser);
+            if (titanUser.hasOpenTicket() && channel.getId().equals(titanUser.getTicketChannelId())) {
+                this.closeTicketOrConfirm(channel, channel, titanUser);
                 return;
             }
             if (sender.getRoles().contains(this.ticketRole)) {
                 AtomicReference<String> ticketOwnerId = new AtomicReference<>();
                 this.userCache.modifyAllUsers(user -> {
-                    if (user.getTicketChannelId().isPresent() && user.getTicketChannelId().get().equals(channel.getId())) {
+                    if (user.hasOpenTicket() && user.getTicketChannelId().equals(channel.getId())) {
                         ticketOwnerId.set(user.getId());
                         System.out.println("Match: ".concat(ticketOwnerId.get()));
                     }
                     return user;
                 });
-                this.initiateOrConfirm(channel, channel, this.userCache.getUser(ticketOwnerId.get()));
+                if (ticketOwnerId.get() == null) {
+                    System.out.println("Couldn't find ticket owner channel ".concat(channel.getId()));
+                    channel.sendMessage(":x: was unable to find the ticket owner.").queue();
+                    return;
+                }
+                this.closeTicketOrConfirm(channel, channel, this.userCache.getUser(ticketOwnerId.get()));
                 return;
             }
             channel.sendMessage(":x: You cannot close this ticket.").queue();
         } else {
-            if (titanUser.getTicketChannelId().isPresent()) {
-                container.getGuild().getTextChannelById(titanUser.getTicketChannelId().get()).delete().queue();
+            if (titanUser.hasOpenTicket()) {
+                container.getGuild().getTextChannelById(titanUser.getTicketChannelId()).delete().queue();
                 titanUser.setTicketChannelId("N/A");
                 return;
             }
@@ -66,7 +102,7 @@ public class TicketUtils {
         }
     }
 
-    private void initiateOrConfirm(TextChannel ticketChannel, TextChannel sendChannel, TitanUser channelOwner) {
+    private void closeTicketOrConfirm(TextChannel ticketChannel, TextChannel sendChannel, TitanUser channelOwner) {
         String ticketName = ticketChannel.getName();
         if (this.deleteConfirmation.containsKey(ticketName) && System.currentTimeMillis() - this.deleteConfirmation.get(ticketName) < 60000) {
             channelOwner.setTicketChannelId("N/A");

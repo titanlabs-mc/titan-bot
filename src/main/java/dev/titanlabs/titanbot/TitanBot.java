@@ -11,7 +11,8 @@ import dev.titanlabs.titanbot.commands.buy.BuyCommand;
 import dev.titanlabs.titanbot.commands.recognition.RecognitionCommand;
 import dev.titanlabs.titanbot.commands.shop.ShopCommand;
 import dev.titanlabs.titanbot.commands.ticket.TicketCommand;
-import dev.titanlabs.titanbot.commands.ticket.alternates.CloseCommand;
+import dev.titanlabs.titanbot.commands.ticket.alternates.CloseTicketCommand;
+import dev.titanlabs.titanbot.commands.ticket.alternates.NewTicketCommand;
 import dev.titanlabs.titanbot.listeners.MemberLeaveListener;
 import dev.titanlabs.titanbot.listeners.message.RecognitionMessageListener;
 import dev.titanlabs.titanbot.listeners.message.ResearchMessageListener;
@@ -32,7 +33,6 @@ import pink.zak.simplediscord.config.Config;
 
 import java.nio.file.Path;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 public class TitanBot extends JdaBot {
     private UserStorage userStorage;
@@ -60,7 +60,6 @@ public class TitanBot extends JdaBot {
         this.userCache = new UserCache(this);
         this.advertisingCache = new AdvertisingCache(this).cache();
 
-        TimeUnit.SECONDS.sleep(5);
         this.guild = this.getJda().getGuildById("686657872481878080");
         this.ticketUtils = new TicketUtils(this);
         this.pasteUtils = new PasteUtils(this);
@@ -81,7 +80,8 @@ public class TitanBot extends JdaBot {
                 new BuyCommand(this),
                 new RecognitionCommand(this),
                 new ShopCommand(this),
-                new CloseCommand(this),
+                new CloseTicketCommand(this),
+                new NewTicketCommand(this),
                 new TicketCommand(this),
                 new HelpCommand(this)
         );

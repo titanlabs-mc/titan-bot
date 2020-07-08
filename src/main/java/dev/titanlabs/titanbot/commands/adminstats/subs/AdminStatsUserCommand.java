@@ -5,6 +5,7 @@ import dev.titanlabs.titanbot.cache.UserCache;
 import dev.titanlabs.titanbot.objects.TitanUser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import pink.zak.simplediscord.command.CommandContainer;
 import pink.zak.simplediscord.command.command.SubCommand;
 
@@ -27,14 +28,16 @@ public class AdminStatsUserCommand extends SubCommand {
         Optional<Member> optionalTarget = this.parseArgument(args, container.getGuild(), 0);
         if (optionalTarget.isPresent()) {
             Member target = optionalTarget.get();
-            TitanUser user = this.userCache.getUser(target.getId());
+            User user = target.getUser();
+            TitanUser titanUser = this.userCache.getUser(target.getId());
             container.getChannel().sendMessage(new EmbedBuilder()
-                    .setTitle("Information on ".concat(target.getUser().getName()))
+                    .setTitle("Information on ".concat(user.getName()).concat("#").concat(user.getDiscriminator()))
                     .setColor(Color.RED)
-                    .addField("Ticket", user.getTicketChannelId().isPresent() ? "<#".concat(user.getTicketChannelId().get()).concat(">") : "N/A", true)
-                    .addField("Tickets Opened", String.valueOf(user.getTicketsOpened()), true)
-                    .addField("Research", String.valueOf(user.getResearch()), true)
-                    .addField("Messages Sent", String.valueOf(user.getMessageAmount()), true)
+                    .setThumbnail(target.getUser().getAvatarUrl())
+                    .addField("Ticket", titanUser.hasOpenTicket() ? "<#".concat(titanUser.getTicketChannelId()).concat(">") : "N/A", true)
+                    .addField("Tickets Opened", String.valueOf(titanUser.getTicketsOpened()), true)
+                    .addField("Research", String.valueOf(titanUser.getResearch()), true)
+                    .addField("Messages Sent", String.valueOf(titanUser.getMessageAmount()), true)
                     .build()).queue();
             return;
         }
