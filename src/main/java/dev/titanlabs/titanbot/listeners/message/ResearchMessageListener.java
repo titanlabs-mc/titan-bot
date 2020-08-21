@@ -25,8 +25,7 @@ public class ResearchMessageListener extends ListenerAdapter {
         TitanUser user = this.userCache.getUser(author.getId());
         if (user.getLastResearchGainTime() == 0 || System.currentTimeMillis() - user.getLastResearchGainTime() > 30000) {
             int researchToAdd = ThreadLocalRandom.current().nextInt(1, 5);
-            System.out.println("Gave user ".concat(author.getName()).concat(" ").concat(String.valueOf(researchToAdd))
-                    .concat(" research. (Totals: ").concat(String.valueOf(user.getResearch() + researchToAdd).concat(")")));
+            TitanBot.getLogger().info("Gave user {} {} research. (Totals: {})", user.getId(), researchToAdd, user.getResearch() + researchToAdd);
             user.modifyResearch(research -> research += researchToAdd);
             user.updateLastResearchGainTime();
         }

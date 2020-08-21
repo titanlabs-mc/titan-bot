@@ -13,11 +13,11 @@ import java.util.function.UnaryOperator;
 
 public class UserCache {
     private final UserStorage userStorage;
-    private final Cache<String, TitanUser> userCache;
+    private final Cache<String, TitanUser> innerCache;
 
     public UserCache(TitanBot bot) {
         this.userStorage = bot.getUserStorage();
-        this.userCache = CacheBuilder
+        this.innerCache = CacheBuilder
                 .newBuilder().expireAfterAccess(15, TimeUnit.MINUTES)
                 .removalListener(new UserCacheRemovalListener(bot, true))
                 .build();
@@ -25,19 +25,19 @@ public class UserCache {
 
     @SneakyThrows
     public TitanUser getUser(String id) {
-        return this.userCache.get(id, () -> {
+        return this.innerCache.get(id, () -> {
             TitanUser titanUser = this.userStorage.load(id);
             return titanUser == null ? new TitanUser(id) : titanUser;
         });
     }
 
     public void modifyAllUsers(UnaryOperator<TitanUser> userOperator) {
-        for (TitanUser cachedUser : this.userCache.asMap().values()) {
+        for (TitanUser cachedUser : this.innerCache.asMap().values()) {
             userOperator.apply(cachedUser);
             this.userStorage.save(cachedUser.getId(), cachedUser);
         }
         for (TitanUser savedUser : this.userStorage.loadAll()) {
-            if (this.userCache.getIfPresent(savedUser.getId()) == null) {
+            if (this.innerCache.getIfPresent(savedUser.getId()) == null) {
                 userOperator.apply(savedUser);
                 this.userStorage.save(savedUser.getId(), savedUser);
             }
@@ -45,19 +45,19 @@ public class UserCache {
     }
 
     public void save(TitanUser user, boolean verbose) {
-        this.userCache.invalidate(user.getId());
+        this.innerCache.invalidate(user.getId());
         this.userStorage.save(user.getId(), user);
         if (verbose) {
-            System.out.println("Saved cached user: ".concat(user.getId()));
+            TitanBot.getLogger().info("Saved cached user: ".concat(user.getId()));
         }
     }
 
     public void save(boolean verbose) {
-        for (TitanUser user : this.userCache.asMap().values()) {
+        for (TitanUser user : this.innerCache.asMap().values()) {
             this.userStorage.save(user.getId(), user);
-            this.userCache.invalidate(user.getId());
+            this.innerCache.invalidate(user.getId());
             if (verbose) {
-                System.out.println("Saved cached user: ".concat(user.getId()));
+                TitanBot.getLogger().info("Saved cached user: ".concat(user.getId()));
             }
         }
     }

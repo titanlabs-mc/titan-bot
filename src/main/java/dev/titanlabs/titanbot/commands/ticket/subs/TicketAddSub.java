@@ -48,9 +48,8 @@ public class TicketAddSub extends SubCommand {
                 return;
             }
             Member target = optionalTarget.get();
-            textChannel.createPermissionOverride(target).grant(this.ticketPermissions).queue(permissionOverride -> {
-                messageChannel.sendMessage(":white_check_mark: ".concat(target.getAsMention()).concat(" has been added to the ticket.")).queue();
-            });
+            textChannel.createPermissionOverride(target).grant(this.ticketPermissions)
+                    .queue(override -> messageChannel.sendMessage(":white_check_mark: ".concat(target.getAsMention()).concat(" has been added to the ticket.")).queue());
             return;
         }
         messageChannel.sendMessage(":x: You must be the owner of the ticket to add another user.").queue();

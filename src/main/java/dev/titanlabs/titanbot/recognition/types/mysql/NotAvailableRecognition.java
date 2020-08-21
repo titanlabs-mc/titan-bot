@@ -3,14 +3,10 @@ package dev.titanlabs.titanbot.recognition.types.mysql;
 import dev.titanlabs.titanbot.recognition.RecognitionType;
 import net.dv8tion.jda.api.entities.TextChannel;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class NotAvailableRecognition extends RecognitionType {
-    private final AtomicInteger uses;
 
     public NotAvailableRecognition(boolean enabled) {
         super("Wrong Address/Unavailable (MySQL)", "mysqlnotavailable", enabled);
-        this.uses = new AtomicInteger();
     }
 
     @Override

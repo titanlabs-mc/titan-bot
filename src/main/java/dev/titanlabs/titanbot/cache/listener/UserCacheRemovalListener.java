@@ -7,7 +7,7 @@ import dev.titanlabs.titanbot.TitanBot;
 import dev.titanlabs.titanbot.objects.TitanUser;
 import dev.titanlabs.titanbot.storage.UserStorage;
 
-public class UserCacheRemovalListener implements RemovalListener {
+public class UserCacheRemovalListener implements RemovalListener<String, TitanUser> {
     private final UserStorage userStorage;
     private final boolean verbose;
 
@@ -17,14 +17,14 @@ public class UserCacheRemovalListener implements RemovalListener {
     }
 
     @Override
-    public void onRemoval(RemovalNotification notification) {
+    public void onRemoval(RemovalNotification<String, TitanUser> notification) {
         if (notification.getCause() != RemovalCause.EXPIRED) {
             return;
         }
-        TitanUser user = (TitanUser) notification.getValue();
+        TitanUser user = notification.getValue();
         this.userStorage.save(user.getId(), user);
         if (this.verbose) {
-            System.out.println("Saved cached user: ".concat(user.getId()));
+            TitanBot.getLogger().info("Saved cached user: ".concat(user.getId()));
         }
     }
 }

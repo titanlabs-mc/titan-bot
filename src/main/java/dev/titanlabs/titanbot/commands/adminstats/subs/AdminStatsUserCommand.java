@@ -10,6 +10,7 @@ import pink.zak.simplediscord.command.CommandContainer;
 import pink.zak.simplediscord.command.command.SubCommand;
 
 import java.awt.*;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 public class AdminStatsUserCommand extends SubCommand {
@@ -38,6 +39,7 @@ public class AdminStatsUserCommand extends SubCommand {
                     .addField("Tickets Opened", String.valueOf(titanUser.getTicketsOpened()), true)
                     .addField("Research", String.valueOf(titanUser.getResearch()), true)
                     .addField("Messages Sent", String.valueOf(titanUser.getMessageAmount()), true)
+                    .addField("Account Created", user.getTimeCreated().format(DateTimeFormatter.ofPattern("yyyy/MM/dd")), true)
                     .build()).queue();
             return;
         }

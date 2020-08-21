@@ -1,26 +1,25 @@
 package dev.titanlabs.titanbot.commands.baltop;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.Lists;
 import dev.titanlabs.titanbot.TitanBot;
 import dev.titanlabs.titanbot.cache.UserCache;
+import dev.titanlabs.titanbot.objects.TitanUser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import pink.zak.simplediscord.command.CommandContainer;
 import pink.zak.simplediscord.command.command.SimpleCommand;
 
 import java.awt.*;
-import java.util.Collections;
-import java.util.Map;
+import java.util.List;
+
 
 public class BalTopCommand extends SimpleCommand {
-    private final TitanBot bot;
     private final UserCache userCache;
-    private final Map<Integer, String> cachedLeaderboard = Maps.newTreeMap(Collections.reverseOrder());
+    private List<TitanUser> cachedLeaderboard = Lists.newArrayList();
     private long lastCacheTime;
 
     public BalTopCommand(TitanBot bot) {
         super(bot, "baltop", false);
-        this.bot = bot;
         this.userCache = bot.getUserCache();
 
         this.setAliases("leaderboard", "lb");
@@ -33,12 +32,12 @@ public class BalTopCommand extends SimpleCommand {
         }
         StringBuilder builder = new StringBuilder();
         for (int i = 1; i <= 10 && this.cachedLeaderboard.size() >= i; i++) {
-            int research = (Integer) this.cachedLeaderboard.keySet().toArray()[i - 1];
+            TitanUser user = this.cachedLeaderboard.get(i - 1);
             builder.append(i)
                     .append(") <@")
-                    .append(this.cachedLeaderboard.get(research))
+                    .append(user.getId())
                     .append("> - ")
-                    .append(research)
+                    .append(user.getResearch())
                     .append(" research\n");
         }
         container.getChannel().sendMessage(new EmbedBuilder()
@@ -49,11 +48,15 @@ public class BalTopCommand extends SimpleCommand {
     }
 
     private void cache() {
-        this.cachedLeaderboard.clear();
+        long startTime = System.currentTimeMillis();
+        List<TitanUser> updatedLeaderboard = Lists.newArrayList();
         this.userCache.modifyAllUsers(titanUser -> {
-            this.cachedLeaderboard.put(titanUser.getResearch(), titanUser.getId());
+            updatedLeaderboard.add(titanUser);
             return titanUser;
         });
+        updatedLeaderboard.sort(TitanUser::compareTo);
+        this.cachedLeaderboard = Lists.reverse(updatedLeaderboard);
+        TitanBot.getLogger().info("Produced updated leaderboard in {}ms", System.currentTimeMillis() - startTime);
         this.lastCacheTime = System.currentTimeMillis();
     }
 }

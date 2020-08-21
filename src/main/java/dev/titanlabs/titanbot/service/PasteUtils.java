@@ -26,13 +26,14 @@ public class PasteUtils {
             BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
             StringBuilder dataBuilder = new StringBuilder();
             reader.lines().forEach(dataBuilder::append);
+            reader.close();
             return dataBuilder.toString();
         } catch (FileNotFoundException ex) {
-            System.out.println("Pastebin: Non existent paste entered");
+            TitanBot.getLogger().info("Pastebin: Non existent paste entered");
         } catch (MalformedURLException ex) {
-            System.out.println("Pastebin: Bad id entered: ".concat(id));
+            TitanBot.getLogger().info("Pastebin: Bad id entered: {}", id);
         } catch (IOException ex) {
-            System.out.println("Pastebin: Unknown error.");
+            TitanBot.getLogger().error("Pastebin: Unknown error. ", ex);
             ex.printStackTrace();
         }
         return "";

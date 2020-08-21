@@ -1,9 +1,11 @@
 package dev.titanlabs.titanbot.objects;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.UnaryOperator;
+import org.jetbrains.annotations.NotNull;
 
-public class TitanUser {
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.IntUnaryOperator;
+
+public class TitanUser implements Comparable<TitanUser> {
     private final String id;
     private final AtomicInteger ticketsOpened;
     private final AtomicInteger messageAmount;
@@ -39,8 +41,8 @@ public class TitanUser {
         return this.messageAmount;
     }
 
-    public void modifyResearch(UnaryOperator<Integer> research) {
-        this.research = research.apply(this.research);
+    public void modifyResearch(IntUnaryOperator research) {
+        this.research = research.applyAsInt(this.research);
     }
 
     public int getResearch() {
@@ -65,5 +67,10 @@ public class TitanUser {
 
     public void setTicketChannelId(String id) {
         this.ticketChannelId = id;
+    }
+
+    @Override
+    public int compareTo(@NotNull TitanUser otherUser) {
+        return Integer.compare(this.research, otherUser.getResearch());
     }
 }

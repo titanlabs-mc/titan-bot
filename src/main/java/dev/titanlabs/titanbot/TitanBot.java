@@ -28,6 +28,8 @@ import lombok.SneakyThrows;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.internal.utils.JDALogger;
+import org.slf4j.Logger;
 import pink.zak.simplediscord.bot.JdaBot;
 import pink.zak.simplediscord.config.Config;
 
@@ -44,8 +46,14 @@ public class TitanBot extends JdaBot {
     private RecognitionManager recognitionManager;
     private ShopItemManager shopItemManager;
 
+    private static final Logger logger = JDALogger.getLog(TitanBot.class);
+
     public TitanBot() {
         super(path -> path);
+    }
+
+    public static Logger getLogger() {
+        return logger;
     }
 
     @SneakyThrows
@@ -93,7 +101,7 @@ public class TitanBot extends JdaBot {
                 new TicketReplyListener(this),
                 new UserStatsMessageListener(this)
         );
-        System.out.println("Loaded Successfully");
+        logger.info("Loaded Successfully");
     }
 
     public Set<GatewayIntent> getIntents() {
@@ -105,7 +113,7 @@ public class TitanBot extends JdaBot {
 
     @Override
     public void unload() {
-        System.out.println("Shutting down...");
+        logger.info("Shutting down...");
         this.userCache.save(true);
         System.exit(0);
     }

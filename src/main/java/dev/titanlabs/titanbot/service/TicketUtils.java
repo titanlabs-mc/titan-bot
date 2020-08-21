@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class TicketUtils {
     private final UserCache userCache;
+    private final TitanBot bot;
     private final Map<String, Long> deleteConfirmation = Maps.newHashMap();
     private final Set<Permission> ticketPermissions = Sets.newHashSet();
     private final Role ticketRole;
@@ -28,6 +29,7 @@ public class TicketUtils {
         Config settings = bot.getConfig("settings");
         Guild guild = bot.getGuild();
         this.userCache = bot.getUserCache();
+        this.bot = bot;
         this.ticketRole = guild.getRoleById(settings.string("ticket-role-id"));
         this.pendingCategory = guild.getCategoryById(settings.string("pending-ticket-category"));
         this.answeredCategory = guild.getCategoryById(settings.string("answered-ticket-category"));
@@ -45,6 +47,7 @@ public class TicketUtils {
             if (ticketChannel == null) {
                 titanUser.setTicketChannelId("N/A");
                 this.handleOpenRequest(sender, container);
+                return;
             }
             container.getChannel().sendMessage(new EmbedBuilder()
                     .setTitle(":x: Ticket Already Open")
@@ -68,38 +71,36 @@ public class TicketUtils {
 
     public void handleCloseRequest(Member sender, CommandContainer container) {
         TextChannel channel = (TextChannel) container.getChannel();
+        TextChannel targetChannel = channel;
         TitanUser titanUser = this.userCache.getUser(sender.getId());
-        if (channel.getName().contains("ticket-")) {
-            if (titanUser.hasOpenTicket() && channel.getId().equals(titanUser.getTicketChannelId())) {
-                this.closeTicketOrConfirm(channel, channel, titanUser);
-                return;
-            }
-            if (sender.getRoles().contains(this.ticketRole)) {
-                AtomicReference<String> ticketOwnerId = new AtomicReference<>();
-                this.userCache.modifyAllUsers(user -> {
-                    if (user.hasOpenTicket() && user.getTicketChannelId().equals(channel.getId())) {
-                        ticketOwnerId.set(user.getId());
-                        System.out.println("Match: ".concat(ticketOwnerId.get()));
-                    }
-                    return user;
-                });
-                if (ticketOwnerId.get() == null) {
-                    System.out.println("Couldn't find ticket owner channel ".concat(channel.getId()));
-                    channel.sendMessage(":x: was unable to find the ticket owner.").queue();
-                    return;
+        if (sender.getRoles().contains(this.ticketRole) && (!titanUser.hasOpenTicket() || !channel.getId().equals(titanUser.getTicketChannelId()))) {
+            AtomicReference<String> ticketOwnerId = new AtomicReference<>();
+            this.userCache.modifyAllUsers(user -> {
+                if (user.hasOpenTicket() && user.getTicketChannelId().equals(channel.getId())) {
+                    ticketOwnerId.set(user.getId());
                 }
-                this.closeTicketOrConfirm(channel, channel, this.userCache.getUser(ticketOwnerId.get()));
+                return user;
+            });
+            if (ticketOwnerId.get() == null) {
+                TitanBot.getLogger().error("Couldn't find ticket owner channel ".concat(channel.getId()));
+                channel.sendMessage(":x: was unable to find the ticket owner.").queue();
                 return;
             }
-            channel.sendMessage(":x: You cannot close this ticket.").queue();
-        } else {
-            if (titanUser.hasOpenTicket()) {
-                container.getGuild().getTextChannelById(titanUser.getTicketChannelId()).delete().queue();
-                titanUser.setTicketChannelId("N/A");
-                return;
-            }
-            channel.sendMessage(":x: You do not have a ticket open.").queue();
+            this.closeTicketOrConfirm(channel, channel, this.userCache.getUser(ticketOwnerId.get()));
+            return;
         }
+        if (!titanUser.hasOpenTicket()) {
+            channel.sendMessage(":x: You do not have a ticket open.").queue();
+            return;
+        }
+        if (!channel.getId().equals(titanUser.getTicketChannelId())) {
+            targetChannel = this.bot.getGuild().getTextChannelById(titanUser.getTicketChannelId());
+        }
+        if (targetChannel == null) {
+            channel.sendMessage(":x: You cannot close this ticket.").queue();
+            return;
+        }
+        this.closeTicketOrConfirm(targetChannel, channel, titanUser);
     }
 
     private void closeTicketOrConfirm(TextChannel ticketChannel, TextChannel sendChannel, TitanUser channelOwner) {
